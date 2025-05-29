@@ -10,8 +10,8 @@ echo "📦 Installing system dependencies..."
 sudo apt install --no-install-recommends \
     xserver-xorg xinit x11-xserver-utils unclutter python3-pip python3-dev git -y
 
-echo "🐍 Installing Python packages: pygame, opencv-python, gpiozero, numpy..."
-pip3 install pygame opencv-python gpiozero numpy
+echo "🐍 Installing Python packages: pygame, numpy..."
+pip3 install pygame numpy
 
 echo "📁 Cloning FreshLux repo..."
 cd ~
@@ -30,8 +30,8 @@ EOF
 chmod +x ~/.xinitrc
 
 echo "🚀 Setting autostart for tty1 login..."
-grep -qxF 'if [ -z "$DISPLAY" ] && [ $(tty) = /dev/tty1 ]; then startx; fi' ~/.bash_profile || \
-echo 'if [ -z "$DISPLAY" ] && [ $(tty) = /dev/tty1 ]; then startx; fi' >> ~/.bash_profile
+grep -qxF 'if [ -z "\$DISPLAY" ] && [ \$(tty) = /dev/tty1 ]; then startx; fi' ~/.bash_profile || \
+echo 'if [ -z "\$DISPLAY" ] && [ \$(tty) = /dev/tty1 ]; then startx; fi' >> ~/.bash_profile
 
 echo "🎨 Installing Plymouth for boot splash..."
 sudo apt install plymouth plymouth-themes -y
@@ -60,12 +60,12 @@ echo "📝 Editing plymouth config..."
 sudo sed -i 's/ImageDir=.*/ImageDir=\/usr\/share\/plymouth\/themes\/spinner/' /usr/share/plymouth/themes/spinner/spinner.plymouth
 sudo sed -i 's/ScriptFile=.*/ScriptFile=\/usr\/share\/plymouth\/themes\/spinner\/spinner.script/' /usr/share/plymouth/themes/spinner/spinner.plymouth
 
-echo "⚙️ Updating bootloader config..."
+echo "🔧 Updating bootloader config..."
 if ! grep -q "quiet splash logo.nologo" /boot/boot.cmdline; then
   sudo sed -i 's/$/ quiet splash logo.nologo/' /boot/boot.cmdline
 fi
 
-echo "🔧 Regenerating initramfs..."
+echo "🔁 Regenerating initramfs..."
 sudo update-initramfs -u
 
 echo "✅ Setup complete. Rebooting in 5 seconds..."
