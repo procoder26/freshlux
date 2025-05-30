@@ -1,5 +1,5 @@
 # freshlux
-PIP Command: ```pip install pygame opencv-python gpiozero numpy```
+Run Command: ```wget https://raw.githubusercontent.com/procoder26/freshlux/main/setup.sh && chmod +x setup.sh && ./setup.sh```
 <br>
 Username: ```freshlux```
 <br>
