@@ -8,10 +8,16 @@ sudo apt update && sudo apt upgrade -y
 
 echo "📦 Installing system dependencies..."
 sudo apt install --no-install-recommends \
-    xserver-xorg xinit x11-xserver-utils unclutter python3-pip python3-dev git -y
+    xserver-xorg xinit x11-xserver-utils unclutter python3-full python3-venv git -y
 
-echo "🐍 Installing Python packages: pygame, numpy..."
-pip3 install pygame numpy
+echo "🐍 Setting up Python virtual environment..."
+VENV_DIR=~/freshlux-venv
+python3 -m venv $VENV_DIR
+source $VENV_DIR/bin/activate
+
+echo "📦 Installing Python packages: pygame, numpy..."
+pip install --upgrade pip
+pip install pygame numpy
 
 echo "📁 Cloning FreshLux repo..."
 cd ~
@@ -25,6 +31,7 @@ echo "🧠 Creating .xinitrc to launch ad viewer..."
 cat <<EOF > ~/.xinitrc
 #!/bin/bash
 unclutter -idle 0 &
+source ~/freshlux-venv/bin/activate
 python3 ~/freshlux/main.py
 EOF
 chmod +x ~/.xinitrc
@@ -57,8 +64,8 @@ spinner:SetAnimation("spinner", 30);
 EOF
 
 echo "📝 Editing plymouth config..."
-sudo sed -i 's/ImageDir=.*/ImageDir=\/usr\/share\/plymouth\/themes\/spinner/' /usr/share/plymouth/themes/spinner/spinner.plymouth
-sudo sed -i 's/ScriptFile=.*/ScriptFile=\/usr\/share\/plymouth\/themes\/spinner\/spinner.script/' /usr/share/plymouth/themes/spinner/spinner.plymouth
+sudo sed -i 's|ImageDir=.*|ImageDir=/usr/share/plymouth/themes/spinner|' /usr/share/plymouth/themes/spinner/spinner.plymouth
+sudo sed -i 's|ScriptFile=.*|ScriptFile=/usr/share/plymouth/themes/spinner/spinner.script|' /usr/share/plymouth/themes/spinner/spinner.plymouth
 
 echo "🔧 Updating bootloader config..."
 if ! grep -q "quiet splash logo.nologo" /boot/boot.cmdline; then
