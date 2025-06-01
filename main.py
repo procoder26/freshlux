@@ -5,13 +5,17 @@ import json
 import time
 import pygame
 
-# Load config.json
-with open("config.json") as f:
+# Get absolute path to this script's directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Load config.json from script directory
+config_path = os.path.join(script_dir, "config.json")
+with open(config_path) as f:
     config = json.load(f)
 
 IMAGE_DISPLAY_TIME = config["image_display_time"]
 TRANSITION_DURATION = config["transition_duration"]
-IMAGE_FOLDER = os.path.join(os.getcwd(), config["image_folder"])
+IMAGE_FOLDER = os.path.join(script_dir, config["image_folder"])
 
 pygame.init()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
@@ -52,7 +56,6 @@ def display_image(path):
             time.sleep(0.1)
     except Exception as e:
         print(f"Error displaying image {path}: {e}")
-
 
 def main_loop():
     while True:
