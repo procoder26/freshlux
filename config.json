@@ -1,6 +1,6 @@
 {
   "image_display_time": 15,
-  "transition_duration": 0.25,
+  "transition_duration": 0,
   "button_gpio_pin": 17,
   "image_folder": "assets",
   "video_extensions": [".mp4", ".mov", ".avi"]
