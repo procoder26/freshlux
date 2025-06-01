@@ -1,5 +1,5 @@
 {
-  "image_display_time": 10,
+  "image_display_time": 15,
   "transition_duration": 0.25,
   "button_gpio_pin": 17,
   "image_folder": "assets",
