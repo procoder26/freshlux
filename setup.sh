@@ -8,16 +8,9 @@ sudo apt update && sudo apt upgrade -y
 
 echo "📦 Installing system dependencies..."
 sudo apt install --no-install-recommends \
-    xserver-xorg xinit x11-xserver-utils unclutter python3-full python3-venv git -y
-
-echo "🐍 Setting up Python virtual environment..."
-VENV_DIR=~/freshlux-venv
-python3 -m venv $VENV_DIR
-source $VENV_DIR/bin/activate
-
-echo "📦 Installing Python packages: pygame, numpy..."
-pip install --upgrade pip
-pip install pygame numpy
+    xserver-xorg xinit x11-xserver-utils unclutter \
+    python3-pygame python3-numpy python3-dev git \
+    plymouth plymouth-themes -y
 
 echo "📁 Cloning FreshLux repo..."
 cd ~
@@ -31,26 +24,19 @@ echo "🧠 Creating .xinitrc to launch ad viewer..."
 cat <<EOF > ~/.xinitrc
 #!/bin/bash
 unclutter -idle 0 &
-source ~/freshlux-venv/bin/activate
 python3 ~/freshlux/main.py
 EOF
 chmod +x ~/.xinitrc
 
 echo "🚀 Setting autostart for tty1 login..."
-grep -qxF 'if [ -z "\$DISPLAY" ] && [ \$(tty) = /dev/tty1 ]; then startx; fi' ~/.bash_profile || \
-echo 'if [ -z "\$DISPLAY" ] && [ \$(tty) = /dev/tty1 ]; then startx; fi' >> ~/.bash_profile
+BASH_PROFILE=~/.bash_profile
+AUTOLOGIN_LINE='if [ -z "$DISPLAY" ] && [ $(tty) = /dev/tty1 ]; then startx; fi'
+grep -qxF "$AUTOLOGIN_LINE" "$BASH_PROFILE" || echo "$AUTOLOGIN_LINE" >> "$BASH_PROFILE"
 
-echo "🎨 Installing Plymouth for boot splash..."
-sudo apt install plymouth plymouth-themes -y
-
-echo "🎯 Setting spinner theme..."
-sudo plymouth-set-default-theme spinner
-
-echo "🖼️ Adding FreshLux logo to spinner theme..."
+echo "🎨 Setting up boot splash with FreshLux logo..."
 sudo cp ~/freshlux/freshlux.png /usr/share/plymouth/themes/spinner/freshlux.png
 
-echo "🧾 Updating spinner script..."
-sudo bash -c 'cat > /usr/share/plymouth/themes/spinner/spinner.script' <<'EOF'
+sudo tee /usr/share/plymouth/themes/spinner/spinner.script > /dev/null <<'EOF'
 theme.image_path = "/usr/share/plymouth/themes/spinner";
 freshlux_logo = Image("freshlux.png");
 freshlux_logo:SetZ(10);
@@ -63,13 +49,17 @@ spinner:SetZ(100);
 spinner:SetAnimation("spinner", 30);
 EOF
 
-echo "📝 Editing plymouth config..."
-sudo sed -i 's|ImageDir=.*|ImageDir=/usr/share/plymouth/themes/spinner|' /usr/share/plymouth/themes/spinner/spinner.plymouth
-sudo sed -i 's|ScriptFile=.*|ScriptFile=/usr/share/plymouth/themes/spinner/spinner.script|' /usr/share/plymouth/themes/spinner/spinner.plymouth
+echo "📝 Updating plymouth config..."
+sudo sed -i 's|^ImageDir=.*|ImageDir=/usr/share/plymouth/themes/spinner|' /usr/share/plymouth/themes/spinner/spinner.plymouth
+sudo sed -i 's|^ScriptFile=.*|ScriptFile=/usr/share/plymouth/themes/spinner/spinner.script|' /usr/share/plymouth/themes/spinner/spinner.plymouth
+
+echo "🎯 Setting spinner theme..."
+sudo plymouth-set-default-theme spinner
 
 echo "🔧 Updating bootloader config..."
-if ! grep -q "quiet splash logo.nologo" /boot/boot.cmdline; then
-  sudo sed -i 's/$/ quiet splash logo.nologo/' /boot/boot.cmdline
+BOOT_CMDLINE="/boot/cmdline.txt"
+if ! grep -q "quiet splash logo.nologo" "$BOOT_CMDLINE"; then
+  sudo sed -i 's/$/ quiet splash logo.nologo/' "$BOOT_CMDLINE"
 fi
 
 echo "🔁 Regenerating initramfs..."
