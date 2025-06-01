@@ -42,13 +42,15 @@ def display_image(path):
     try:
         img = pygame.image.load(path)
         img = pygame.transform.scale(img, screen_rect.size)
-        fade_transition(img)
+        screen.blit(img, screen_rect)
+        pygame.display.flip()
         start = time.time()
         while time.time() - start < IMAGE_DISPLAY_TIME:
             check_events()
             time.sleep(0.1)
     except Exception as e:
         print(f"Error displaying image {path}: {e}")
+
 
 def main_loop():
     while True:
