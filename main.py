@@ -29,22 +29,14 @@ def load_assets():
 
 assets = load_assets()
 
-def fade_in(surface, steps=15):
-    for alpha in range(0, 256, max(1, 256 // steps)):
-        surface.set_alpha(alpha)
+def fade_transition(surface):
+    overlay = surface.copy()
+    for alpha in range(0, 256, 20):  # Faster fade for performance
+        overlay.set_alpha(alpha)
         screen.fill((0, 0, 0))
-        screen.blit(surface, surface.get_rect(center=screen_rect.center))
+        screen.blit(overlay, overlay.get_rect(center=screen_rect.center))
         pygame.display.flip()
-        time.sleep(TRANSITION_DURATION / steps)
-    surface.set_alpha(255)
-
-def fade_out(surface, steps=15):
-    for alpha in range(255, -1, -max(1, 256 // steps)):
-        surface.set_alpha(alpha)
-        screen.fill((0, 0, 0))
-        screen.blit(surface, surface.get_rect(center=screen_rect.center))
-        pygame.display.flip()
-        time.sleep(TRANSITION_DURATION / steps)
+        time.sleep(TRANSITION_DURATION / 13)
 
 def check_events():
     for event in pygame.event.get():
@@ -56,12 +48,12 @@ def display_image(path):
     try:
         img = pygame.image.load(path)
         img = pygame.transform.scale(img, screen_rect.size)
-        fade_in(img)
+        screen.blit(img, screen_rect)
+        pygame.display.flip()
         start = time.time()
         while time.time() - start < IMAGE_DISPLAY_TIME:
             check_events()
             time.sleep(0.1)
-        fade_out(img)
     except Exception as e:
         print(f"Error displaying image {path}: {e}")
 
