@@ -22,10 +22,19 @@ screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.mouse.set_visible(False)
 screen_rect = screen.get_rect()
 
+def natural_sort_key(filename):
+    # Extract leading number from filename like "12.png" or "3.jpg"
+    name, _ = os.path.splitext(filename)
+    try:
+        return int(name)
+    except ValueError:
+        return float('inf')  # push non-numeric filenames to the end
+
 def load_assets():
     files = [f for f in os.listdir(IMAGE_FOLDER)
              if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
-    return [os.path.join(IMAGE_FOLDER, f) for f in sorted(files)]
+    files.sort(key=natural_sort_key)
+    return [os.path.join(IMAGE_FOLDER, f) for f in files]
 
 assets = load_assets()
 
